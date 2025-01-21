@@ -1,0 +1,65 @@
+{
+  "particles": {
+    "number": {
+      "value": 50,
+      "density": {
+        "enable": true,
+        "value_area": 800
+      }
+    },
+    "color": {
+      "value": "#ffffff"
+    },
+    "shape": {
+      "type": "image",
+      "image": {
+        "src": "https://www.svgrepo.com/show/518/heart-shape.svg",
+        "width": 100,
+        "height": 100
+      }
+    },
+    "opacity": {
+      "value": 0.7,
+      "random": true,
+      "anim": {
+        "enable": true,
+        "speed": 1
+      }
+    },
+    "size": {
+      "value": 15,
+      "random": true,
+      "anim": {
+        "enable": true,
+        "speed": 2
+      }
+    },
+    "line_linked": {
+      "enable": false
+    },
+    "move": {
+      "enable": true,
+      "speed": 2,
+      "direction": "none",
+      "random": true,
+      "straight": false,
+      "out_mode": "out",
+      "bounce": false
+    }
+  },
+  "interactivity": {
+    "detect_on": "canvas",
+    "events": {
+      "onhover": {
+        "enable": true,
+        "mode": "bubble"
+      },
+      "onclick": {
+        "enable": true,
+        "mode": "push"
+      },
+      "resize": true
+    }
+  },
+  "retina_detect": true
+}

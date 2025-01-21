@@ -1,0 +1,79 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    z-index: 1;
+}
+
+h1 {
+    font-size: 5rem; /* Aumentar tamaño del texto */
+    font-weight: bold;
+    color: #d10000; /* Cambiar color del texto a rojo oscuro */
+    animation: fadeIn 1s ease-in-out;
+}
+
+#kissButton {
+    background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+    border: none;
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+    color: white;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+}
+
+#kissButton:hover {
+    transform: scale(1.1);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+#counter-suma {
+    font-size: 4rem;
+    font-weight: bold;
+    background: linear-gradient(45deg, #d10000, #ff6b6b);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 1rem 0;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+#particles-js {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* Asegúrate de que las partículas no cubran el contenido */
+}

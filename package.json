@@ -1,0 +1,16 @@
+{
+  "name": "besitos-counter",
+  "version": "1.0.0",
+  "description": "Contador de besitos con WebSocket",
+  "scripts": {
+    "build": "mkdir -p public && cp -r index.html styles.css script.js particles.json src public/",
+    "dev": "netlify dev"
+  },
+  "dependencies": {
+    "socket.io": "^4.5.4",
+    "socket.io-client": "^4.5.4"
+  },
+  "devDependencies": {
+    "netlify-cli": "^12.0.0"
+  }
+}
