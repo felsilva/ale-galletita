@@ -43,6 +43,12 @@ h1 {
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
+#kissButton.clicked {
+    transform: scale(0.95);
+    opacity: 0.8;
+    transition: all 0.2s ease;
+}
+
 #counter-suma {
     font-size: 4rem;
     font-weight: bold;

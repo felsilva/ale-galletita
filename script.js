@@ -1,53 +1,66 @@
 document.addEventListener("DOMContentLoaded", () => {
     console.log("DOM completamente cargado y parseado.");
 
-    // Variables para reintentos
-    let retryCount = 0;
-    const maxRetries = 3;
+    const counterElement = document.getElementById('counter-suma');
+    const onlineUsersElement = document.getElementById('online-users');
+    const kissButton = document.getElementById('kissButton');
+    
+    let count = 0;
+    let users = 0;
 
-    function connectSocket() {
-        const socket = io({
-            path: '/.netlify/functions/server',
-            transports: ['polling'],
-            reconnectionAttempts: maxRetries,
-            reconnectionDelay: 1000,
-            timeout: 5000
-        });
-
-        const counterElement = document.getElementById('counter-suma');
-        const onlineUsersElement = document.getElementById('online-users');
-        const kissButton = document.getElementById('kissButton');
-
-        socket.on('connect', () => {
-            console.log('Conectado al servidor');
-            retryCount = 0;
-        });
-
-        socket.on('connect_error', (error) => {
-            console.error('Error de conexión:', error);
-            retryCount++;
+    // Función para actualizar el contador
+    async function updateCounter() {
+        try {
+            const response = await fetch('/.netlify/functions/server');
+            const data = await response.json();
             
-            if (retryCount >= maxRetries) {
-                console.log('Máximo de reintentos alcanzado, usando modo fallback');
-                // Aquí podrías implementar un modo fallback si lo necesitas
+            if (data.count !== undefined) {
+                count = data.count;
+                users = data.users;
+                counterElement.textContent = count;
+                onlineUsersElement.textContent = `Usuarios conectados: ${users}`;
             }
-        });
-
-        socket.on('updateCounter', (count) => {
-            counterElement.textContent = count;
-        });
-
-        socket.on('updateOnlineUsers', (users) => {
-            onlineUsersElement.textContent = `Usuarios conectados: ${users}`;
-        });
-
-        kissButton.addEventListener('click', () => {
-            socket.emit('increment');
-        });
+        } catch (error) {
+            console.error('Error al actualizar:', error);
+        }
     }
 
-    // Iniciar conexión
-    connectSocket();
+    // Función para incrementar el contador
+    async function increment() {
+        try {
+            const response = await fetch('/.netlify/functions/server', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ action: 'increment' })
+            });
+            
+            const data = await response.json();
+            if (data.count !== undefined) {
+                count = data.count;
+                counterElement.textContent = count;
+            }
+        } catch (error) {
+            console.error('Error al incrementar:', error);
+        }
+    }
+
+    // Actualizar cada segundo
+    setInterval(updateCounter, 1000);
+
+    // Actualizar inmediatamente al cargar
+    updateCounter();
+
+    // Manejar clics del botón
+    kissButton.addEventListener('click', () => {
+        increment();
+        // Efecto visual del botón
+        kissButton.classList.add('clicked');
+        setTimeout(() => {
+            kissButton.classList.remove('clicked');
+        }, 200);
+    });
 
     // Inicializar partículas
     particlesJS('particles-js', {
