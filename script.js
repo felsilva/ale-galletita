@@ -1,36 +1,53 @@
 document.addEventListener("DOMContentLoaded", () => {
     console.log("DOM completamente cargado y parseado.");
 
-    // Conexión directa a la función de Netlify
-    const socket = io('/.netlify/functions/server', {
-        transports: ['polling'],
-        reconnectionAttempts: 3,
-        timeout: 10000
-    });
+    // Variables para reintentos
+    let retryCount = 0;
+    const maxRetries = 3;
 
-    socket.on('connect', () => {
-        console.log('Conectado al servidor');
-    });
+    function connectSocket() {
+        const socket = io({
+            path: '/.netlify/functions/server',
+            transports: ['polling'],
+            reconnectionAttempts: maxRetries,
+            reconnectionDelay: 1000,
+            timeout: 5000
+        });
 
-    socket.on('connect_error', (error) => {
-        console.error('Error de conexión:', error);
-    });
+        const counterElement = document.getElementById('counter-suma');
+        const onlineUsersElement = document.getElementById('online-users');
+        const kissButton = document.getElementById('kissButton');
 
-    const counterElement = document.getElementById('counter-suma');
-    const onlineUsersElement = document.getElementById('online-users');
-    const kissButton = document.getElementById('kissButton');
+        socket.on('connect', () => {
+            console.log('Conectado al servidor');
+            retryCount = 0;
+        });
 
-    socket.on('updateCounter', (count) => {
-        counterElement.textContent = count;
-    });
+        socket.on('connect_error', (error) => {
+            console.error('Error de conexión:', error);
+            retryCount++;
+            
+            if (retryCount >= maxRetries) {
+                console.log('Máximo de reintentos alcanzado, usando modo fallback');
+                // Aquí podrías implementar un modo fallback si lo necesitas
+            }
+        });
 
-    socket.on('updateOnlineUsers', (users) => {
-        onlineUsersElement.textContent = `Usuarios conectados: ${users}`;
-    });
+        socket.on('updateCounter', (count) => {
+            counterElement.textContent = count;
+        });
 
-    kissButton.addEventListener('click', () => {
-        socket.emit('increment');
-    });
+        socket.on('updateOnlineUsers', (users) => {
+            onlineUsersElement.textContent = `Usuarios conectados: ${users}`;
+        });
+
+        kissButton.addEventListener('click', () => {
+            socket.emit('increment');
+        });
+    }
+
+    // Iniciar conexión
+    connectSocket();
 
     // Inicializar partículas
     particlesJS('particles-js', {
