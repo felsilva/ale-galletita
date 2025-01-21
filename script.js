@@ -1,8 +1,18 @@
 document.addEventListener("DOMContentLoaded", () => {
     console.log("DOM completamente cargado y parseado.");
 
-    // Inicializar Socket.IO con la función de Netlify
-    const socket = io('/.netlify/functions/server');
+    // Configuración del socket
+    const socketUrl = window.location.hostname === 'localhost' 
+        ? 'http://localhost:8888/.netlify/functions/server' 
+        : 'https://galletita-ale.netlify.app/.netlify/functions/server';
+
+    const socket = io(socketUrl, {
+        transports: ['websocket'],
+        path: '/socket.io',
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+        reconnection: true
+    });
 
     // Inicializar partículas
     particlesJS('particles-js', {
@@ -98,7 +108,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // Actualizar contador inicial con el valor local
     counterSuma.textContent = localCount;
 
-    // Eventos de Socket.IO
+    // Manejo de errores de conexión
+    socket.on('connect_error', (error) => {
+        console.error('Error de conexión:', error);
+    });
+
     socket.on('connect', () => {
         console.log('Conectado al servidor');
         // Emitir el contador local al conectarse
@@ -120,12 +134,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     socket.on('updateOnlineUsers', (count) => {
         onlineUsers.textContent = `Usuarios conectados: ${count}`;
-    });
-
-    // Manejo de errores de conexión
-    socket.on('connect_error', (error) => {
-        console.log('Error de conexión, usando modo local:', error);
-        // El botón seguirá funcionando en modo local
     });
 
     // Evento del botón

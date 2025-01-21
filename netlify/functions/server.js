@@ -9,12 +9,25 @@ exports.handler = async (event, context) => {
     io = new Server({
       cors: {
         origin: process.env.NODE_ENV === 'development' 
-          ? "*" 
-          : ["galletita-ale.netlify.app"]
+          ? "http://localhost:8888" 
+          : ["https://galletita-ale.netlify.app"],
+        methods: ["GET", "POST"],
+        credentials: true,
+        allowedHeaders: ["my-custom-header"]
+      },
+      path: '/socket.io',
+      transports: ['websocket'],
+      allowEIO3: true,
+      cookie: {
+        name: "io",
+        path: "/",
+        httpOnly: true,
+        sameSite: "strict"
       }
     });
 
     io.on('connection', (socket) => {
+      console.log('Cliente conectado:', socket.id);
       connectedUsers++;
       io.emit('updateOnlineUsers', connectedUsers);
       socket.emit('updateCounter', globalCount);
@@ -25,6 +38,7 @@ exports.handler = async (event, context) => {
       });
 
       socket.on('disconnect', () => {
+        console.log('Cliente desconectado:', socket.id);
         connectedUsers--;
         io.emit('updateOnlineUsers', connectedUsers);
       });
@@ -34,6 +48,14 @@ exports.handler = async (event, context) => {
   if (event.httpMethod === 'GET') {
     return {
       statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': process.env.NODE_ENV === 'development' 
+          ? 'http://localhost:8888' 
+          : 'https://galletita-ale.netlify.app',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type'
+      },
       body: JSON.stringify({ count: globalCount, users: connectedUsers })
     };
   }
