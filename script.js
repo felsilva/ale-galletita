@@ -1,17 +1,30 @@
 document.addEventListener("DOMContentLoaded", () => {
     console.log("DOM completamente cargado y parseado.");
 
-    // Configuración del socket
-    const socketUrl = window.location.hostname === 'localhost' 
-        ? 'http://localhost:8888/.netlify/functions/server' 
-        : 'https://galletita-ale.netlify.app/.netlify/functions/server';
-
+    const socketUrl = '/.netlify/functions/server';
+    
     const socket = io(socketUrl, {
-        transports: ['websocket'],
+        transports: ['polling', 'websocket'], // Intentar primero polling
         path: '/socket.io',
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
-        reconnection: true
+        reconnection: true,
+        forceNew: true,
+        timeout: 10000,
+        upgrade: true
+    });
+
+    // Mejor manejo de errores
+    socket.on('connect_error', (error) => {
+        console.log('Error de conexión:', error.message);
+    });
+
+    socket.on('connect', () => {
+        console.log('Conectado exitosamente al servidor');
+    });
+
+    socket.on('disconnect', (reason) => {
+        console.log('Desconectado del servidor:', reason);
     });
 
     // Inicializar partículas
@@ -108,17 +121,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Actualizar contador inicial con el valor local
     counterSuma.textContent = localCount;
 
-    // Manejo de errores de conexión
-    socket.on('connect_error', (error) => {
-        console.error('Error de conexión:', error);
-    });
-
-    socket.on('connect', () => {
-        console.log('Conectado al servidor');
-        // Emitir el contador local al conectarse
-        socket.emit('syncCount', localCount);
-    });
-
+    // Eventos de Socket.IO
     socket.on('updateCounter', (newCount) => {
         // Actualizar solo si el nuevo contador es mayor
         if (newCount > localCount) {

@@ -4,6 +4,13 @@
 
 [functions]
   directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/.netlify/functions/server/*"
+  to = "/.netlify/functions/server/:splat"
+  status = 200
+  force = true
 
 [[redirects]]
   from = "/socket.io/*"
@@ -18,7 +25,7 @@
 
 [dev]
   framework = "#custom"
-  command = "npm run dev"
+  command = "netlify dev"
   targetPort = 8888
   port = 8888
   publish = "public" 

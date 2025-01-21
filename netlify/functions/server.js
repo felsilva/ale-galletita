@@ -5,29 +5,29 @@ let globalCount = 0;
 let connectedUsers = 0;
 
 exports.handler = async (event, context) => {
+  context.callbackWaitsForEmptyEventLoop = false;
+  
   if (!io) {
     io = new Server({
       cors: {
-        origin: process.env.NODE_ENV === 'development' 
-          ? "http://localhost:8888" 
-          : ["https://galletita-ale.netlify.app"],
+        origin: "*", // Más permisivo para pruebas
         methods: ["GET", "POST"],
-        credentials: true,
-        allowedHeaders: ["my-custom-header"]
+        allowedHeaders: ["*"],
+        credentials: true
       },
       path: '/socket.io',
-      transports: ['websocket'],
+      transports: ['polling', 'websocket'],
       allowEIO3: true,
-      cookie: {
-        name: "io",
-        path: "/",
-        httpOnly: true,
-        sameSite: "strict"
-      }
+      pingTimeout: 10000,
+      pingInterval: 5000,
+      upgradeTimeout: 30000,
+      maxHttpBufferSize: 1e8,
+      allowUpgrades: true
     });
 
     io.on('connection', (socket) => {
-      console.log('Cliente conectado:', socket.id);
+      console.log('Nuevo cliente conectado:', socket.id);
+      
       connectedUsers++;
       io.emit('updateOnlineUsers', connectedUsers);
       socket.emit('updateCounter', globalCount);
@@ -37,24 +37,41 @@ exports.handler = async (event, context) => {
         io.emit('updateCounter', globalCount);
       });
 
-      socket.on('disconnect', () => {
-        console.log('Cliente desconectado:', socket.id);
+      socket.on('disconnect', (reason) => {
+        console.log('Cliente desconectado:', socket.id, 'Razón:', reason);
         connectedUsers--;
         io.emit('updateOnlineUsers', connectedUsers);
       });
+
+      socket.on('error', (error) => {
+        console.error('Error en socket:', error);
+      });
     });
+  }
+
+  // Manejo de CORS para las solicitudes HTTP
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Credentials': true,
+  };
+
+  // Manejar preflight OPTIONS
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers,
+      body: ''
+    };
   }
 
   if (event.httpMethod === 'GET') {
     return {
       statusCode: 200,
       headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': process.env.NODE_ENV === 'development' 
-          ? 'http://localhost:8888' 
-          : 'https://galletita-ale.netlify.app',
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type'
+        ...headers,
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({ count: globalCount, users: connectedUsers })
     };
@@ -62,6 +79,7 @@ exports.handler = async (event, context) => {
 
   return {
     statusCode: 405,
+    headers,
     body: 'Method not allowed'
   };
 }; 
