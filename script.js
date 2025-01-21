@@ -1,20 +1,20 @@
 document.addEventListener("DOMContentLoaded", () => {
     console.log("DOM completamente cargado y parseado.");
 
-    const socketUrl = '/.netlify/functions/server';
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const socketUrl = isLocal 
+        ? 'http://localhost:8888/api/server' 
+        : '/api/server';
     
     const socket = io(socketUrl, {
-        transports: ['polling', 'websocket'], // Intentar primero polling
-        path: '/socket.io',
+        transports: ['polling', 'websocket'],
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
         reconnection: true,
         forceNew: true,
-        timeout: 10000,
-        upgrade: true
+        timeout: 10000
     });
 
-    // Mejor manejo de errores
     socket.on('connect_error', (error) => {
         console.log('Error de conexión:', error.message);
     });

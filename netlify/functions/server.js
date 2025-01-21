@@ -10,23 +10,18 @@ exports.handler = async (event, context) => {
   if (!io) {
     io = new Server({
       cors: {
-        origin: "*", // Más permisivo para pruebas
+        origin: "*",
         methods: ["GET", "POST"],
-        allowedHeaders: ["*"],
         credentials: true
       },
-      path: '/socket.io',
       transports: ['polling', 'websocket'],
       allowEIO3: true,
       pingTimeout: 10000,
-      pingInterval: 5000,
-      upgradeTimeout: 30000,
-      maxHttpBufferSize: 1e8,
-      allowUpgrades: true
+      pingInterval: 5000
     });
 
     io.on('connection', (socket) => {
-      console.log('Nuevo cliente conectado:', socket.id);
+      console.log('Cliente conectado:', socket.id);
       
       connectedUsers++;
       io.emit('updateOnlineUsers', connectedUsers);
@@ -37,42 +32,29 @@ exports.handler = async (event, context) => {
         io.emit('updateCounter', globalCount);
       });
 
-      socket.on('disconnect', (reason) => {
-        console.log('Cliente desconectado:', socket.id, 'Razón:', reason);
+      socket.on('disconnect', () => {
+        console.log('Cliente desconectado:', socket.id);
         connectedUsers--;
         io.emit('updateOnlineUsers', connectedUsers);
-      });
-
-      socket.on('error', (error) => {
-        console.error('Error en socket:', error);
       });
     });
   }
 
-  // Manejo de CORS para las solicitudes HTTP
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Credentials': true,
+    'Content-Type': 'application/json'
   };
 
-  // Manejar preflight OPTIONS
   if (event.httpMethod === 'OPTIONS') {
-    return {
-      statusCode: 200,
-      headers,
-      body: ''
-    };
+    return { statusCode: 204, headers };
   }
 
   if (event.httpMethod === 'GET') {
     return {
       statusCode: 200,
-      headers: {
-        ...headers,
-        'Content-Type': 'application/json'
-      },
+      headers,
       body: JSON.stringify({ count: globalCount, users: connectedUsers })
     };
   }
@@ -80,6 +62,6 @@ exports.handler = async (event, context) => {
   return {
     statusCode: 405,
     headers,
-    body: 'Method not allowed'
+    body: JSON.stringify({ error: 'Method not allowed' })
   };
 }; 
