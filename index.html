@@ -13,14 +13,36 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Besitos">
     
-    <!-- Manifest -->
-    <link rel="manifest" href="/manifest.json">
-    
-    <!-- iOS icons -->
-    <link rel="apple-touch-icon" href="icons/192/icon-192x192.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="icons/152/icon-152x152.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="icons/192/icon-192x192.png">
-    <link rel="apple-touch-icon" sizes="167x167" href="icons/152/icon-152x152.png">
+    <!-- PWA Manifest Inline -->
+    <script type="application/manifest+json">
+    {
+      "name": "Contador de Besitos",
+      "short_name": "Besitos",
+      "description": "Contador de besitos con amor",
+      "start_url": "/",
+      "display": "standalone",
+      "background_color": "#ff9a9e",
+      "theme_color": "#ff6b6b",
+      "orientation": "portrait",
+      "icons": [
+        {
+          "src": "src/icons/192/icon-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png",
+          "purpose": "any maskable"
+        },
+        {
+          "src": "src/icons/512/icon-512x512.png",
+          "sizes": "512x512",
+          "type": "image/png"
+        }
+      ]
+    }
+    </script>
+
+    <!-- PWA Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="src/icons/192/icon-192x192.png">
+    <link rel="apple-touch-icon" href="src/icons/192/icon-192x192.png">
 </head>
 <body>
     <div id="particles-js"></div>
@@ -37,19 +59,32 @@
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script src="script.js"></script>
     
+    <!-- Service Worker Registration -->
     <script>
-        // Registrar Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
                     .then(registration => {
-                        console.log('ServiceWorker registrado con éxito:', registration.scope);
+                        console.log('SW registrado:', registration);
                     })
                     .catch(error => {
-                        console.log('Error al registrar ServiceWorker:', error);
+                        console.log('SW error:', error);
                     });
             });
         }
+
+        // Cache básico
+        caches.open('besitos-cache-v1').then(cache => {
+            cache.addAll([
+                '/',
+                '/index.html',
+                '/styles.css',
+                '/script.js',
+                '/src/images/1.gif',
+                '/src/icons/192/icon-192x192.png',
+                '/src/icons/512/icon-512x512.png'
+            ]);
+        });
     </script>
 </body>
 </html>

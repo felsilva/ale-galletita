@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Contador de besitos con WebSocket",
   "scripts": {
-    "build": "mkdir -p public && cp index.html styles.css script.js particles.json manifest.json sw.js public/ && cp -r src public/",
+    "build": "mkdir -p public && cp index.html styles.css script.js public/ && cp -r src public/",
     "dev": "netlify dev",
     "start": "netlify dev --port 8888"
   },
