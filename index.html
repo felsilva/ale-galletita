@@ -10,21 +10,52 @@
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#ff6b6b">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Besitos">
+    <meta name="apple-mobile-web-app-title" content="Contador de Besitos">
+    <meta name="application-name" content="Contador de Besitos">
+    <meta name="msapplication-TileColor" content="#ff6b6b">
+    <meta name="msapplication-TileImage" content="src/icons/144/icon-144x144.png">
+    <meta name="description" content="Un contador de besitos con amor">
     
     <!-- PWA Manifest Inline -->
     <script type="application/manifest+json">
     {
       "name": "Contador de Besitos",
-      "short_name": "Besitos",
-      "description": "Contador de besitos con amor",
-      "start_url": "/",
+      "short_name": "Contador de Besitos",
+      "description": "Un contador de besitos con amor",
+      "start_url": "/?source=pwa",
       "display": "standalone",
       "background_color": "#ff9a9e",
       "theme_color": "#ff6b6b",
       "orientation": "portrait",
+      "categories": ["social", "lifestyle"],
       "icons": [
+        {
+          "src": "src/icons/72/icon-72x72.png",
+          "sizes": "72x72",
+          "type": "image/png"
+        },
+        {
+          "src": "src/icons/96/icon-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        },
+        {
+          "src": "src/icons/128/icon-128x128.png",
+          "sizes": "128x128",
+          "type": "image/png"
+        },
+        {
+          "src": "src/icons/144/icon-144x144.png",
+          "sizes": "144x144",
+          "type": "image/png"
+        },
+        {
+          "src": "src/icons/152/icon-152x152.png",
+          "sizes": "152x152",
+          "type": "image/png"
+        },
         {
           "src": "src/icons/192/icon-192x192.png",
           "sizes": "192x192",
@@ -32,17 +63,38 @@
           "purpose": "any maskable"
         },
         {
+          "src": "src/icons/384/icon-384x384.png",
+          "sizes": "384x384",
+          "type": "image/png"
+        },
+        {
           "src": "src/icons/512/icon-512x512.png",
           "sizes": "512x512",
           "type": "image/png"
         }
-      ]
+      ],
+      "screenshots": [
+        {
+          "src": "src/screenshots/screen1.png",
+          "sizes": "1280x720",
+          "type": "image/png",
+          "platform": "wide",
+          "label": "Pantalla principal del Contador de Besitos"
+        }
+      ],
+      "prefer_related_applications": false
     }
     </script>
 
     <!-- PWA Icons -->
+    <link rel="icon" type="image/png" sizes="16x16" href="src/icons/16/icon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="src/icons/32/icon-32x32.png">
     <link rel="icon" type="image/png" sizes="192x192" href="src/icons/192/icon-192x192.png">
     <link rel="apple-touch-icon" href="src/icons/192/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="src/icons/152/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="src/icons/192/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="src/icons/152/icon-152x152.png">
+    <link rel="mask-icon" href="src/icons/192/icon-192x192.png" color="#ff6b6b">
 </head>
 <body>
     <div id="particles-js"></div>
@@ -59,32 +111,41 @@
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script src="script.js"></script>
     
-    <!-- Service Worker Registration -->
     <script>
+        // Registrar Service Worker
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('SW registrado:', registration);
-                    })
-                    .catch(error => {
-                        console.log('SW error:', error);
-                    });
+            window.addEventListener('load', async () => {
+                try {
+                    const registration = await navigator.serviceWorker.register('/sw.js');
+                    console.log('SW registrado:', registration.scope);
+                } catch (error) {
+                    console.error('SW error:', error);
+                }
             });
         }
 
         // Cache básico
-        caches.open('besitos-cache-v1').then(cache => {
-            cache.addAll([
-                '/',
-                '/index.html',
-                '/styles.css',
-                '/script.js',
-                '/src/images/1.gif',
-                '/src/icons/192/icon-192x192.png',
-                '/src/icons/512/icon-512x512.png'
-            ]);
-        });
+        if ('caches' in window) {
+            caches.open('besitos-cache-v1').then(cache => {
+                return cache.addAll([
+                    '/',
+                    '/index.html',
+                    '/styles.css',
+                    '/script.js',
+                    '/src/images/1.gif',
+                    '/src/icons/16/icon-16x16.png',
+                    '/src/icons/32/icon-32x32.png',
+                    '/src/icons/72/icon-72x72.png',
+                    '/src/icons/96/icon-96x96.png',
+                    '/src/icons/128/icon-128x128.png',
+                    '/src/icons/144/icon-144x144.png',
+                    '/src/icons/152/icon-152x152.png',
+                    '/src/icons/192/icon-192x192.png',
+                    '/src/icons/384/icon-384x384.png',
+                    '/src/icons/512/icon-512x512.png'
+                ]);
+            });
+        }
     </script>
 </body>
 </html>
