@@ -1,30 +1,35 @@
 document.addEventListener("DOMContentLoaded", () => {
     console.log("DOM completamente cargado y parseado.");
 
-    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const socketUrl = isLocal 
-        ? 'http://localhost:8888/api/server' 
-        : '/api/server';
-    
-    const socket = io(socketUrl, {
-        transports: ['polling', 'websocket'],
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
-        reconnection: true,
-        forceNew: true,
+    // Conexión directa a la función de Netlify
+    const socket = io('/.netlify/functions/server', {
+        transports: ['polling'],
+        reconnectionAttempts: 3,
         timeout: 10000
     });
 
-    socket.on('connect_error', (error) => {
-        console.log('Error de conexión:', error.message);
-    });
-
     socket.on('connect', () => {
-        console.log('Conectado exitosamente al servidor');
+        console.log('Conectado al servidor');
     });
 
-    socket.on('disconnect', (reason) => {
-        console.log('Desconectado del servidor:', reason);
+    socket.on('connect_error', (error) => {
+        console.error('Error de conexión:', error);
+    });
+
+    const counterElement = document.getElementById('counter-suma');
+    const onlineUsersElement = document.getElementById('online-users');
+    const kissButton = document.getElementById('kissButton');
+
+    socket.on('updateCounter', (count) => {
+        counterElement.textContent = count;
+    });
+
+    socket.on('updateOnlineUsers', (users) => {
+        onlineUsersElement.textContent = `Usuarios conectados: ${users}`;
+    });
+
+    kissButton.addEventListener('click', () => {
+        socket.emit('increment');
     });
 
     // Inicializar partículas
@@ -109,59 +114,5 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         },
         retina_detect: true
-    });
-
-    const kissButton = document.getElementById("kissButton");
-    const counterSuma = document.getElementById("counter-suma");
-    const onlineUsers = document.getElementById("online-users");
-
-    // Obtener el contador del localStorage
-    let localCount = parseInt(localStorage.getItem('contador')) || 0;
-
-    // Actualizar contador inicial con el valor local
-    counterSuma.textContent = localCount;
-
-    // Eventos de Socket.IO
-    socket.on('updateCounter', (newCount) => {
-        // Actualizar solo si el nuevo contador es mayor
-        if (newCount > localCount) {
-            localCount = newCount;
-            counterSuma.textContent = localCount;
-            localStorage.setItem('contador', localCount);
-            
-            // Añadir animación al actualizar
-            counterSuma.classList.add('pulse');
-            setTimeout(() => counterSuma.classList.remove('pulse'), 500);
-        }
-    });
-
-    socket.on('updateOnlineUsers', (count) => {
-        onlineUsers.textContent = `Usuarios conectados: ${count}`;
-    });
-
-    // Evento del botón
-    kissButton.addEventListener("click", () => {
-        // Incrementar contador local
-        localCount++;
-        counterSuma.textContent = localCount;
-        localStorage.setItem('contador', localCount);
-
-        // Intentar sincronizar con otros usuarios
-        try {
-            socket.emit('increment', localCount);
-        } catch (error) {
-            console.log('Error al sincronizar, continuando en modo local');
-        }
-        
-        // Efecto de explosión de partículas
-        for(let i = 0; i < 4; i++) {
-            setTimeout(() => {
-                pJSDom[0].pJS.particles.move.speed = 8;
-                pJSDom[0].pJS.fn.particles.push();
-                setTimeout(() => {
-                    pJSDom[0].pJS.particles.move.speed = 3;
-                }, 200);
-            }, i * 50);
-        }
     });
 });

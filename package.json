@@ -4,7 +4,8 @@
   "description": "Contador de besitos con WebSocket",
   "scripts": {
     "build": "mkdir -p public && cp -r index.html styles.css script.js particles.json src public/",
-    "dev": "netlify dev"
+    "dev": "netlify dev",
+    "start": "netlify dev --port 8888"
   },
   "dependencies": {
     "socket.io": "^4.5.4",

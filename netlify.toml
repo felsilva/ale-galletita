@@ -4,12 +4,6 @@
 
 [functions]
   directory = "netlify/functions"
-  node_bundler = "esbuild"
-
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
 
 [[redirects]]
   from = "/*"
@@ -18,7 +12,6 @@
 
 [dev]
   framework = "#custom"
-  command = "npm run dev"
-  targetPort = 8888
-  port = 8888
-  publish = "public" 
+  command = "netlify dev"
+  targetPort = 3000
+  port = 8888 
